@@ -27,7 +27,13 @@ def divide(a: int or float, b: int or float) -> int or float:
 
 
 # Handles user inputs and calculates based on inputted values
-def calculator():
+def calculator(user_input: int, param_one: int, param_two: int) -> None:
+    operation_list = [calculate_hypotenuse, sum_function, subtract, multiply, divide]
+
+    print(operation_list[user_input - 1](param_one, param_two))
+
+
+if __name__ == "__main__":
     print("""
     1 to calculate hypotenuse
     2 to add
@@ -36,24 +42,9 @@ def calculator():
     5 to divide
     """)
 
-    user_input = int(input(""))
+    ui = int(input(""))
 
-    param_one = int(input("enter first number: "))
-    param_two = int(input("enter second number: "))
+    v_one = int(input("enter first number: "))
+    v_two = int(input("enter second number: "))
 
-    if user_input == 1:
-        print(calculate_hypotenuse(param_one, param_two))
-    elif user_input == 2:
-        print(sum_function(param_one, param_two))
-    elif user_input == 3:
-        print(subtract(param_one, param_two))
-    elif user_input == 4:
-        print(multiply(param_one, param_two))
-    elif user_input == 5:
-        print(divide(param_one, param_two))
-    else:
-        print("Wrong value inputted")
-
-
-if __name__ == "__main__":
-    calculator()
+    calculator(ui, v_one, v_two)
