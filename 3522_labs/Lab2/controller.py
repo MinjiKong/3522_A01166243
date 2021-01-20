@@ -6,7 +6,7 @@ import time
 
 class Controller:
     """
-    This class is the controller for simulation of the Asteroids.
+    This class is the controller for simulation of Asteroids.
     """
     def __init__(self):
         """
