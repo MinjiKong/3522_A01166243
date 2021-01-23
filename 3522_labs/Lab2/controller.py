@@ -8,15 +8,16 @@ class Controller:
     """
     This class is the controller for simulation of Asteroids.
     """
+
     def __init__(self):
         """
         Initializes the Controller object with a list of randomly generated Asteroids.
         """
-        self._list_of_asteroids = []
+        self.__list_of_asteroids = []
         for x in range(100):
-            self._list_of_asteroids.append(Controller.create_asteroid(position_range=random.randint(0, 101),
-                                                                      velocity_range=random.randint(0, 6),
-                                                                      radius_range=random.randint(1, 5)))
+            self.__list_of_asteroids.append(Controller.create_asteroid(position_range=random.randint(0, 101),
+                                                                       velocity_range=random.randint(0, 6),
+                                                                       radius_range=random.randint(1, 5)))
 
     @classmethod
     def create_asteroid(cls, position_range: int or float, velocity_range: int or float, radius_range: int or float):
@@ -47,7 +48,7 @@ class Controller:
             time.sleep(1 - datetime.datetime.now().microsecond * 0.000001)
             print(f"Simulation Start Time: {datetime.datetime.now()}\n")
             print("Moving Asteroids!\n---------------")
-            for index, asteroid in enumerate(self._list_of_asteroids):
+            for index, asteroid in enumerate(self.__list_of_asteroids):
                 print(f"Asteroid {asteroid.get_id()} Moved! Old Position {asteroid.get_position().return_as_tuple()} "
                       f"-> New Position {asteroid.move()}")
 

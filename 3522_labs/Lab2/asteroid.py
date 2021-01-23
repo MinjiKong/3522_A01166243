@@ -16,9 +16,9 @@ class Vector:
         :precondition: y must be an integer or float
         :precondition: z must be an integer or float
         """
-        self._x = x
-        self._y = y
-        self._z = z
+        self.__x = x
+        self.__y = y
+        self.__z = z
 
     def get_x(self):
         """
@@ -26,7 +26,7 @@ class Vector:
 
         :return: The x attribute
         """
-        return self._x
+        return self.__x
 
     def get_y(self):
         """
@@ -34,7 +34,7 @@ class Vector:
 
         :return: The y attribute
         """
-        return self._y
+        return self.__y
 
     def get_z(self):
         """
@@ -42,7 +42,7 @@ class Vector:
 
         :return: The z attribute
         """
-        return self._z
+        return self.__z
 
     def set_x(self, x):
         """
@@ -51,7 +51,7 @@ class Vector:
         :param x: The value to change x to.
         :precondition: x must be an integer or float.
         """
-        self._x = x
+        self.__x = x
 
     def set_y(self, y):
         """
@@ -60,7 +60,7 @@ class Vector:
         :param y: The value to change y to.
         :precondition: y must be an integer or float.
         """
-        self._y = y
+        self.__y = y
 
     def set_z(self, z):
         """
@@ -69,7 +69,7 @@ class Vector:
         :param z: The value to change z to.
         :precondition: z must be an integer or float.
         """
-        self._z = z
+        self.__z = z
 
     def add(self, vector):
         """
@@ -78,9 +78,9 @@ class Vector:
         :param vector: The vector to be added.
         :precondition: vector must be a vector class.
         """
-        self.set_x(self._x + vector.get_x())
-        self.set_y(self._y + vector.get_y())
-        self.set_z(self._z + vector.get_z())
+        self.set_x(self.__x + vector.get_x())
+        self.set_y(self.__y + vector.get_y())
+        self.set_z(self.__z + vector.get_z())
 
     def return_as_tuple(self):
         """
@@ -88,7 +88,7 @@ class Vector:
 
         :return: The vector represented as a tuple.
         """
-        return tuple((self._x, self._y, self._z))
+        return tuple((self.__x, self.__y, self.__z))
 
     def __str__(self):
         """
@@ -113,9 +113,9 @@ class Asteroid:
         :param position: The current position of the Asteroid in metres.
         :param velocity: The current velocity of the Asteroid in metres.
         """
-        self.circumference = circumference
-        self._position = position
-        self._velocity = velocity
+        self.__circumference = circumference
+        self.__position = position
+        self.__velocity = velocity
         self.__id = Asteroid.asteroid_id
         Asteroid.increment_id()
 
@@ -125,7 +125,7 @@ class Asteroid:
 
         :return: The circumference.
         """
-        return self.circumference
+        return self.__circumference
 
     def get_position(self):
         """
@@ -133,7 +133,7 @@ class Asteroid:
 
         :return: The position of the Asteroid,
         """
-        return self._position
+        return self.__position
 
     def get_velocity(self):
         """
@@ -141,7 +141,7 @@ class Asteroid:
 
         :return: The velocity of the Asteroid.
         """
-        return self._velocity
+        return self.__velocity
 
     def get_id(self):
         """
@@ -158,7 +158,7 @@ class Asteroid:
         :param circumference: The value of the circumference to be set to.
         :precondition: circumference must be an integer or float.
         """
-        self.circumference = circumference
+        self.__circumference = circumference
 
     def set_position(self, position):
         """
@@ -167,7 +167,7 @@ class Asteroid:
         :param position: The value of the position to be set to.
         :precondition: position must be a vector.
         """
-        self._position = position
+        self.__position = position
 
     def set_velocity(self, velocity):
         """
@@ -176,7 +176,7 @@ class Asteroid:
         :param velocity: The value of the velocity to be set to.
         :precondition: velocity must be a vector.
         """
-        self._velocity = velocity
+        self.__velocity = velocity
 
     def move(self):
         """
@@ -184,8 +184,8 @@ class Asteroid:
 
         :return: The Asteroid's new position.
         """
-        self._position.add(self._velocity)
-        return self._position.return_as_tuple()
+        self.__position.add(self.__velocity)
+        return self.__position.return_as_tuple()
 
     @classmethod
     def increment_id(cls):
@@ -209,5 +209,5 @@ class Asteroid:
         """
         Prints the Asteroid object's attributes as a string.
         """
-        print(f"Circumference is: {self.circumference}, position is: {self._position.__str__()}, velocity is: "
-              f"{self._velocity.__str__()}")
+        print(f"Circumference is: {self.__circumference}, position is: {self.__position.__str__()}, velocity is: "
+              f"{self.__velocity.__str__()}")
