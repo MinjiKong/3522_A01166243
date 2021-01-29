@@ -2,6 +2,10 @@ import abc
 
 
 class User(abc.ABC):
+    """
+    Abstract base class that represents all the necessary information that a user must have to function in the
+    FAM system.
+    """
 
     def __init__(self, name, age, account_number, bank_name, bank_balance, budget_list):
         self._name = name
