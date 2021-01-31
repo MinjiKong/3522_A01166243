@@ -2,6 +2,9 @@ from learning_resource import LearningResource
 
 
 class DVD(LearningResource):
+    """
+    A learning resource that is a DVD, includes the unique attributes, director, release date and region code.
+    """
 
     def __init__(self, call_num, title, num_copies, director, release_date, region_code):
         """

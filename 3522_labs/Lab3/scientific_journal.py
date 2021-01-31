@@ -2,6 +2,9 @@ from learning_resource import LearningResource
 
 
 class Journal(LearningResource):
+    """
+    A learning resource that represents a DVD, includes the unique attributes, name, issue number and publisher.
+    """
 
     def __init__(self, call_num, title, num_copies, names, issue_number, publisher):
         """

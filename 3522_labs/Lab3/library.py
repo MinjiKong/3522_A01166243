@@ -22,7 +22,7 @@ class Library:
         :param call_number: a string
         :precondition call_number: a unique identifier
         """
-        library_resource = self._catalogue.retrieve_resource_by_call_number(call_number)
+        library_resource = self._catalogue.retrieve_call_number(call_number)
         if library_resource.check_availability():
             status = self.reduce_resource_count(call_number)
             if status:
@@ -125,7 +125,7 @@ class Library:
         :return: True if the resource was found and count decremented, false
         otherwise.
         """
-        resource = self._catalogue.retrieve_resource_by_call_number(call_number)
+        resource = self._catalogue.retrieve_call_number(call_number)
         if resource:
             resource.decrement_number_of_copies()
             return True
@@ -141,7 +141,7 @@ class Library:
         :return: True if the resource was found and count incremented, false
         otherwise.
         """
-        resource = self._catalogue.retrieve_resource_by_call_number(call_number)
+        resource = self._catalogue.retrieve_call_number(call_number)
         if resource:
             resource.increment_number_of_copies()
             return True
