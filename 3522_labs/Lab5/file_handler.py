@@ -60,20 +60,21 @@ class FileHandler:
         :precondition: The path must exist and be valid. If not, then the program will exit.
         :return: None
         """
-        if pathlib.Path(path).is_file():
-            try:
-                with open(path, "a") as data_file:
-                    data_file.write(lines)
-                    data_file.close()
-            except Exception as e:
-                print(e)
-            else:
-                raise FileNotFoundError("File is not found!")
+        try:
+            with open(path, "a") as data_file:
+                data_file.write(lines)
+                data_file.close()
+        except Exception as e:
+            print(e)
 
 
 class InvalidFileTypeError(Exception):
     """
-
+    Exception for invalid file type. Will be called if file type is not a TXT or JSON file.
     """
+
     def __init__(self):
+        """
+        Initializes the exception with a custom message.
+        """
         super().__init__("File is not a TXT or JSON file!")

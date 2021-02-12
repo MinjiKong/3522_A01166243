@@ -3,8 +3,15 @@ from file_handler import *
 
 
 class Dictionary:
+    """
+    Dictionary class the emulates a dictionary object. You can load data from a file and query from it.
+    """
 
     def __init__(self, file_extension):
+        """
+        Initializes a dictionary with a selected file extension and data set.
+        :param file_extension: The type of file extension.
+        """
         self._data = None
         self._file_extension = file_extension
 
@@ -20,7 +27,6 @@ class Dictionary:
             self._data = FileHandler.load_data(filepath, self._file_extension)
         except Exception as e:
             print(e)
-            exit(-1)
 
     def query_dictionary(self, word):
         """
@@ -39,11 +45,20 @@ class Dictionary:
         except IndexError as e:
             print(e)
 
+    @property
+    def data(self):
+        """
+        Gets the data in a Dictionary object.
+        """
+        return self._data
+
 
 def main():
     dictionary = Dictionary('.json')
     dictionary.load_dictionary("data.json")
-    print(dictionary.query_dictionary(input("Input the word you are looking for here: ")))
+
+    if dictionary.data:
+        print(dictionary.query_dictionary(input("Input the word you are looking for here: ")))
 
 
 if __name__ == "__main__":
