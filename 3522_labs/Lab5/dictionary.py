@@ -54,11 +54,24 @@ class Dictionary:
 
 
 def main():
+    """
+    Main program for to run the functions.
+    """
     dictionary = Dictionary('.json')
     dictionary.load_dictionary("data.json")
 
-    if dictionary.data:
-        print(dictionary.query_dictionary(input("Input the word you are looking for here: ")))
+    val = None
+
+    while val != "exitprogram":
+        if dictionary.data:
+            val = input("Input the word you are looking for here, or type 'exitprogram' to leave: ")
+            if val != "exitprogram":
+                word_list = dictionary.query_dictionary(val)
+                print(word_list)
+                for string in word_list:
+                    FileHandler.write_lines("new.txt", val + ": " + string + "\n")
+
+    print("Thanks for checking out the dictionary!")
 
 
 if __name__ == "__main__":
