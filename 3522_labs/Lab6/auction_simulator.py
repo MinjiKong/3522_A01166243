@@ -36,7 +36,7 @@ class Auctioneer:
         highest bid has changed.
         """
         for bidder in self.bidders:
-            bidder()
+            bidder(self)
 
     def accept_bid(self, bid, bidder="Starting Bid"):
         """
@@ -49,6 +49,23 @@ class Auctioneer:
         """
         self._highest_bid = bid
         self._highest_bidder = bidder
+        self._notify_bidders()
+
+    @property
+    def highest_bidder(self):
+        """
+        Gets the highest bidder
+        :return: string
+        """
+        return self._highest_bidder
+
+    @property
+    def highest_bid(self):
+        """
+        Gets the highest bid
+        :return: integer
+        """
+        return self._highest_bid
 
 
 class Bidder:
@@ -61,7 +78,15 @@ class Bidder:
         self.highest_bid = 0
 
     def __call__(self, auctioneer):
-        print(f"{auctioneer}")
+        probability_bar = random.random()
+        new_bid = auctioneer.highest_bid * self.bid_increase_perc
+        if new_bid < self.budget and auctioneer.highest_bidder is not self.name and self.bid_probability \
+                > probability_bar:
+            self.highest_bid = new_bid
+            print(
+                f"{self.name} bidded {new_bid} in response to {auctioneer.highest_bidder}'s bid of "
+                f"{auctioneer.highest_bid}")
+            auctioneer.accept_bid(bid=new_bid, bidder=self.name)
 
     def __str__(self):
         return self.name
@@ -88,7 +113,20 @@ class Auction:
         :param item: string, name of item.
         :param start_price: float
         """
-        pass
+        auctioneer = Auctioneer()
+        for bidders in self._bidders:
+            auctioneer.register_bidder(bidders)
+        print(f"Auctioning {item} at {start_price}")
+        auctioneer.accept_bid(start_price)
+
+        final_bids = {bidders.__str__(): bidders.highest_bid for bidders in self._bidders}
+
+        print(f"\nNo-one can outbid! The auction goes {max(final_bids, key=final_bids.get)} "
+              f"at the price {max(final_bids.values())}")
+
+        print(f"\nHighest bids per bidder")
+        for key, value in final_bids.items():
+            print(f"Bidder: {key} Highest Bid: {value}")
 
 
 def main():
@@ -109,4 +147,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
