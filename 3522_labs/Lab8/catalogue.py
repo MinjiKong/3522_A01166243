@@ -58,7 +58,7 @@ class Catalogue:
         """
         release_date, region_code, issue_number, publisher = "", "", "", ""
 
-        item_type = input("Enter item type: Book, DVD or Scientific Journal ")
+        item_type = input("Enter item type: Book, DVD or Journal ")
         call_number = input("Enter Call Number: ")
         title = input("Enter title: ")
         num_copies = int(input("Enter number of copies "
@@ -72,10 +72,10 @@ class Catalogue:
             issue_number = input("Enter issue number: ")
             publisher = input("Enter publisher: ")
 
-        item_dict = {item_type: item_type, call_number: call_number,
-                     title: title, num_copies: num_copies, author: author,
-                     release_date: release_date, region_code: region_code,
-                     issue_number: issue_number, publisher: publisher}
+        item_dict = {"item_type": item_type, "call_number": call_number,
+                     "title": title, "num_copies": num_copies, "author": author,
+                     "release_date": release_date, "region_code": region_code,
+                     "issue_number": issue_number, "publisher": publisher}
 
         new_resource = self._factory_object.item_process(item_dict)
 
