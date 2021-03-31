@@ -3,6 +3,7 @@ import argparse
 import abc
 import enum
 
+
 class CryptoMode(enum.Enum):
     """
     Lists the various modes that the Crypto application can run in.
@@ -11,28 +12,6 @@ class CryptoMode(enum.Enum):
     EN = "en"
     # Decryption Mode
     DE = "de"
-
-
-class BaseHandler(abc.ABC):
-    def __init__(self, next_handler=None):
-        self.next_handler = next_handler
-
-    @abc.abstractmethod
-    def handler(self, crypto_type):
-        pass
-
-    def set_handler(self, handler):
-        self.next_handler = handler
-
-
-class EncryptionHandler(BaseHandler):
-    def handler(self, crypto_type):
-        pass
-
-
-class DecryptionHandler(BaseHandler):
-    def handler(self, crypto_type):
-        pass
 
 
 class Request:
@@ -67,6 +46,70 @@ class Request:
         return f"Request: State: {self.encryption_state}, Data: {self.data_input}" \
                f", Input file: {self.input_file}, Output: {self.output}, " \
                f"Key: {self.key}"
+
+
+class BaseHandler(abc.ABC):
+    def __init__(self, next_handler=None):
+        self.next_handler = next_handler
+
+    @abc.abstractmethod
+    def handler(self, crypto_request) -> (str, bool):
+        pass
+
+    def set_handler(self, handler):
+        self.next_handler = handler
+
+
+class EncryptionHandler(BaseHandler):
+    def handler(self, crypto_request: Request) -> (str, bool):
+        des_key = des.DesKey(crypto_request.key)
+        string_to_encrypt = b""
+
+        if crypto_request.input_file and self.next_handler:
+            try:
+                with open(crypto_request.input_file, mode="r", encoding="utf-8") as text_file:
+                    string_to_encrypt += text_file.read()
+                    text_file.close()
+                crypto_request.result = des_key.encrypt(string_to_encrypt)
+            except FileNotFoundError:
+                return "File not found", False
+        elif crypto_request.data_input and self.next_handler:
+            crypto_request.result = des_key.encrypt(bytes(crypto_request.data_input, "utf-8")), True
+        else:
+            return self.next_handler.handler(crypto_request)
+
+
+class OutputHandler(BaseHandler):
+    def handler(self, crypto_request) -> (str, bool):
+        if crypto_request.output == "--output print":
+            print(crypto_request.result)
+        else:
+            with open(crypto_request.output[8:], mode="w", encoding="utf-8") as text_file:
+                text_file = crypto_request.data_input.write()
+                text_file.close()
+            if not self.next_handler:
+                return "", True
+            else:
+                self.next_handler.handler(crypto_request)
+
+
+class DecryptionHandler(BaseHandler):
+    def handler(self, crypto_request: Request) -> (str, bool):
+        des_key = des.DesKey(crypto_request.key)
+        string_to_decrypt = ""
+
+        if crypto_request.input_file and self.next_handler:
+            try:
+                with open(crypto_request.input_file, mode="r", encoding="utf-8") as text_file:
+                    string_to_decrypt += text_file.read()
+                    text_file.close()
+                crypto_request.result = des_key.decrypt(string_to_decrypt)
+            except FileNotFoundError:
+                return "File not found", False
+        elif crypto_request.data_input and self.next_handler:
+            crypto_request.result = des_key.decrypt(bytes(crypto_request.data_input, "utf-8")), True
+        else:
+            return self.next_handler.handler(crypto_request)
 
 
 def setup_request_commandline() -> Request:
