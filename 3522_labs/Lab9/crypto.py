@@ -2,6 +2,7 @@ import des
 import argparse
 import abc
 import enum
+import ast
 
 
 class CryptoMode(enum.Enum):
@@ -49,67 +50,119 @@ class Request:
 
 
 class BaseHandler(abc.ABC):
+    """
+    Base handler class that sets up the framework each handler class should have. (- = attributes, * = methods)
+    - next_handler: Stores the next handler in the chain
+    * handler: The method that this handler class uses, should return the result of the next handler stored in the class
+    * set_handler: Sets the next handler that this class will use
+    """
     def __init__(self, next_handler=None):
         self.next_handler = next_handler
 
     @abc.abstractmethod
     def handler(self, crypto_request) -> (str, bool):
+        """
+        The handler that all inherited handler classes will use. Should return the next handler in the chain.
+        @param: Request
+        return: The next handler or None if the chain is finished
+        """
         pass
 
     def set_handler(self, handler):
+        """
+        Setter for the handler.
+        @param: Handler
+        """
         self.next_handler = handler
 
 
 class EncryptionHandler(BaseHandler):
+    """
+    Encryption handler for handling commands that are specified to be encrypted.
+    """
     def handler(self, crypto_request: Request) -> (str, bool):
-        des_key = des.DesKey(crypto_request.key)
-        string_to_encrypt = b""
+        """
+        Encrypts the requested data, will either return the next handler (output handler) or catch an Exception
+        @precondition: Request must have all attributes not equal to None, except for Data and Input file, in which
+                       either or must be not equal to None.
+        @param: Request
+        return: The next handler (Handler)
+        """
+        des_key = des.DesKey(bytes(crypto_request.key, "utf-8"))
 
-        if crypto_request.input_file and self.next_handler:
+        if crypto_request.input_file:
             try:
                 with open(crypto_request.input_file, mode="r", encoding="utf-8") as text_file:
-                    string_to_encrypt += text_file.read()
+                    string_to_encrypt = text_file.read()
                     text_file.close()
-                crypto_request.result = des_key.encrypt(string_to_encrypt)
-            except FileNotFoundError:
-                return "File not found", False
-        elif crypto_request.data_input and self.next_handler:
-            crypto_request.result = des_key.encrypt(bytes(crypto_request.data_input, "utf-8")), True
-        else:
-            return self.next_handler.handler(crypto_request)
+                crypto_request.result = des_key.encrypt(bytes(string_to_encrypt, "utf-8"), padding=True)
+                return self.next_handler.handler(crypto_request)
+            except FileNotFoundError as e:
+                print(e)
+            except AssertionError as e:
+                print(e)
+        elif crypto_request.data_input:
+            try:
+                crypto_request.result = des_key.encrypt(bytes(crypto_request.data_input, "utf-8"), padding=True)
+                return self.next_handler.handler(crypto_request)
+            except AssertionError as e:
+                print(e)
 
 
 class OutputHandler(BaseHandler):
+    """
+    Output handler for handling the received encrypted or decrypted data.
+    """
     def handler(self, crypto_request) -> (str, bool):
-        if crypto_request.output == "--output print":
+        """
+        Handles the output for the request, the request is either printed or written to a new text file with its name
+        specified in the Request.
+        @precondition: Request must have all attributes not equal to None, except for Data and Input file, in which
+                       either or must be not equal to None.
+        @param: Request
+        return: None
+        """
+        if crypto_request.output == "print":
             print(crypto_request.result)
         else:
-            with open(crypto_request.output[8:], mode="w", encoding="utf-8") as text_file:
-                text_file = crypto_request.data_input.write()
+            with open(crypto_request.output, mode="w", encoding="utf-8") as text_file:
+                text_file.write(crypto_request.result)
                 text_file.close()
-            if not self.next_handler:
-                return "", True
-            else:
-                self.next_handler.handler(crypto_request)
 
 
 class DecryptionHandler(BaseHandler):
+    """
+    Decryption handler for handling commands that are specified to be decrypted
+    """
     def handler(self, crypto_request: Request) -> (str, bool):
-        des_key = des.DesKey(crypto_request.key)
-        string_to_decrypt = ""
+        """
+        Decrypts the requested data, will either return the next handler (output handler) or catch an Exception.
+        @precondition: Request must have all attributes not equal to None, except for Data and Input file, in which
+                       either or must be not equal to None.
+        @param: Request
+        return: The next handler (Handler)
+        """
+        des_key = des.DesKey(bytes(crypto_request.key, "utf-8"))
 
         if crypto_request.input_file and self.next_handler:
             try:
-                with open(crypto_request.input_file, mode="r", encoding="utf-8") as text_file:
-                    string_to_decrypt += text_file.read()
+                with open(crypto_request.input_file, mode="r") as text_file:
+                    string_to_decrypt = text_file.read()
                     text_file.close()
-                crypto_request.result = des_key.decrypt(string_to_decrypt)
-            except FileNotFoundError:
-                return "File not found", False
+                crypto_request.result = des_key.decrypt(ast.literal_eval(string_to_decrypt), padding=True)\
+                    .decode("utf-8")
+                return self.next_handler.handler(crypto_request)
+            except FileNotFoundError as e:
+                print(e)
+            except AssertionError as e:
+                print(e)
         elif crypto_request.data_input and self.next_handler:
-            crypto_request.result = des_key.decrypt(bytes(crypto_request.data_input, "utf-8")), True
-        else:
-            return self.next_handler.handler(crypto_request)
+            try:
+                crypto_request.result = des_key.decrypt(ast.literal_eval(crypto_request.data_input), padding=True)\
+                    .decode("utf-8")
+                return self.next_handler.handler(crypto_request)
+            except AssertionError as e:
+                print(e)
 
 
 def setup_request_commandline() -> Request:
@@ -155,15 +208,23 @@ def setup_request_commandline() -> Request:
 class Crypto:
 
     def __init__(self):
-        self.encryption_start_handler = None
-        self.decryption_start_handler = None
+        self.encryption_start_handler = EncryptionHandler()
+        self.decryption_start_handler = DecryptionHandler()
+        self.output_start_handler = OutputHandler()
 
     def execute_request(self, request: Request):
-        pass
+        self.encryption_start_handler.set_handler(self.output_start_handler)
+        self.decryption_start_handler.set_handler(self.output_start_handler)
+
+        if request.encryption_state == CryptoMode.EN:
+            self.encryption_start_handler.handler(request)
+        else:
+            self.decryption_start_handler.handler(request)
 
 
 def main(request: Request):
-    pass
+    crypto = Crypto()
+    crypto.execute_request(request)
 
 
 if __name__ == '__main__':
